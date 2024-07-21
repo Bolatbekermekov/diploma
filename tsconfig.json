@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",                         // Указывает версию ECMAScript, в которую будет компилироваться TypeScript.
+    "module": "commonjs",                       // Использует модульную систему CommonJS, подходящую для Node.js.
+    "strict": true,                             // Включает все строгие проверки TypeScript.
+    "esModuleInterop": true,                    // Обеспечивает совместимость ECMAScript модулей с CommonJS.
+    "skipLibCheck": true,                       // Пропускает проверку типов в файлах объявлений, что может ускорить компиляцию.
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node", "jest"] ,                 // Требует согласованного использования регистров в именах файлов.
+    "outDir": "./dist",                         // Указывает директорию для скомпилированных файлов.
+    "rootDir": "./src",                         // Указывает корневую директорию исходных файлов.
+    "moduleResolution": "node",                 // Использует резолвер модулей Node.js.
+    "resolveJsonModule": true,                  // Позволяет импортировать JSON файлы как модули.
+    "isolatedModules": true,                    // Поддержка изолированных модулей для улучшения совместимости с инструментами.
+    "noEmit": true                              // Запрещает генерацию файлов при компиляции (только проверка типов).
+  },
+  "include": [
+    "src/**/*.ts",                              // Включает все TypeScript файлы в папке src.
+    "src/**/*.test.ts",                         // Включает все тестовые файлы TypeScript в папке src.
+    "src/**/*.spec.ts"                          // Включает все файлы спецификаций TypeScript в папке src.
+  ],
+  "exclude": [
+    "node_modules",                             // Исключает папку node_modules.
+    "dist"                                      // Исключает папку dist.
+  ]
+}

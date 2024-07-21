@@ -1,4 +1,15 @@
-export const localizedErrorMessages = {
+interface LocalizedMessages {
+  en: string;
+  ru: string;
+  kz: string;
+}
+
+interface ErrorMessages {
+  [key: string]: LocalizedMessages;
+}
+
+
+export const localizedErrorMessages:ErrorMessages = {
 	'500_INTERNAL_SERVER_ERROR': {
 		en: 'Internal server error.',
 		ru: 'Внутренняя ошибка сервера.',

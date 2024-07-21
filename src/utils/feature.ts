@@ -1,6 +1,14 @@
+import { Response } from 'express'
+import { UserDocument } from '../models/user'
+
 export const TOKEN_EXPIRATION = 6 * 30 * 24 * 60 * 60 * 1000
 
-export const sendToken = (user, res, message, statusCode) => {
+export const sendToken = (
+	user: UserDocument,
+	res: Response,
+	message: string,
+	statusCode: number
+) => {
 	const token = user.generateToken()
 
 	return res
@@ -18,5 +26,5 @@ export const sendToken = (user, res, message, statusCode) => {
 
 export const cookieOptions = () => ({
 	httpOnly: true,
-	sameSite: 'none',
+	sameSite: 'none' as 'none',
 })

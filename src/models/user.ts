@@ -1,7 +1,24 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { model, Schema } from 'mongoose'
-import { UserDocument } from '../types'
+import { model, Schema, Document } from 'mongoose'
+
+export interface UserID {
+	_id: string
+	name: string
+	email: string
+	password: string
+	role?: string
+	generateToken: () => string
+	comparePassword: (password: string) => Promise<Boolean>
+}
+
+declare module 'express-serve-static-core' {
+	interface Request {
+		user?: UserID
+	}
+}
+
+export interface UserDocument extends Omit<UserID, '_id'>, Document {}
 
 const userSchema = new Schema<UserDocument>(
 	{
@@ -27,7 +44,7 @@ const userSchema = new Schema<UserDocument>(
 		},
 	},
 	{
-		timestamps: true, // Automatically create createdAt timestamp
+		timestamps: true, // Automatically create createdAt and updatedAt timestamps
 	}
 )
 
@@ -36,17 +53,17 @@ userSchema.methods.comparePassword = async function (enteredPassword: string) {
 }
 
 userSchema.methods.generateToken = function () {
+	if (!process.env.JWT_SECRET) {
+		throw new Error('JWT_SECRET is not defined')
+	}
+
 	return jwt.sign({ _id: this._id }, process.env.JWT_SECRET, {
 		expiresIn: '182d',
 	})
 }
 
-/**
- * Runs before the model saves and hecks to see if password has been
- * modified and hashes the password before saving to database
- */
-userSchema.pre('save', async function (this: UserDocument, next) {
-	if (!this.isModified('password')) next()
+userSchema.pre('save', async function (next) {
+	if (!this.isModified('password')) return next()
 	const salt = await bcrypt.genSalt(10)
 	this.password = await bcrypt.hash(this.password, salt)
 	next()

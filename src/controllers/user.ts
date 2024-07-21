@@ -1,8 +1,8 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import asyncHandler from 'express-async-handler'
 import LocalizedError from '../errors/localized-error'
 import { localizedErrorMessages } from '../errors/localized-messages'
-import { User } from '../models/user'
+import { User, UserID } from '../models/user'
 import { sendToken } from '../utils/feature'
 
 export const authUser = asyncHandler(
@@ -43,8 +43,9 @@ export const authUser = asyncHandler(
  * @route POST /api/users
  * @access Public
  */
+
 export const registerUser = asyncHandler(
-	async (req: Request, res: Response) => {
+	async (req: Request, res: Response, next: NextFunction) => {
 		const { name, email, password } = req.body as {
 			name: string
 			email: string
@@ -54,8 +55,12 @@ export const registerUser = asyncHandler(
 		const userExists = await User.findOne({ email })
 
 		if (userExists) {
-			res.status(400)
-			throw new Error('User already exists')
+			return next(
+				new LocalizedError(
+					localizedErrorMessages['400_USER_ALREADY_EXISTS'],
+					400
+				)
+			)
 		}
 
 		const user = await User.create({
@@ -64,24 +69,24 @@ export const registerUser = asyncHandler(
 			password,
 		})
 
-		return sendToken(user, res, 'Registered Successfully', 201)
+		sendToken(user, res, 'Registered Successfully', 201)
 	}
 )
 
-/**
- * Get user profile
- * @route GET /api/users/profile
- * @access Private
- */
-// const getUserProfile = asyncHandler(async (req: Request, res: Response) => {
-// 	const user = await User.findById(req.user?._id)
+export const getUserProfile = asyncHandler(
+	async (req: Request, res: Response, next: NextFunction) => {
+		if (!req.user) {
+			return next(new Error('User not found'))
+		}
+		const user = req.user as UserID
 
-// 	if (user) {
-// 		res.json({
-// 			user: user,
-// 		})
-// 	} else {
-// 		res.status(404)
-// 		throw new Error('User not found')
-// 	}
-// })
+		res.json({
+			success: true,
+			user: {
+				name: user.name,
+				email: user.email,
+				role: user.role,
+			},
+		})
+	}
+)
